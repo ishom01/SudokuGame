@@ -5,16 +5,10 @@ import android.content.SharedPreferences
 
 class Preferences(context: Context) {
 
-    var sharedPreferences: SharedPreferences
+    var sharedPreferences: SharedPreferences = context.getSharedPreferences("preferences", 0)
     private var editor: SharedPreferences.Editor
 
-    constructor(context: Context, key: String) : this(context) {
-        sharedPreferences = context.getSharedPreferences(key, 0)
-        editor = sharedPreferences.edit()
-    }
-
     init {
-        sharedPreferences = context.getSharedPreferences("preferences", 0)
         editor = sharedPreferences.edit()
     }
 

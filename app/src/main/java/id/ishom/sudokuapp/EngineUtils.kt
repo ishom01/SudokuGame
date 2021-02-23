@@ -1,8 +1,11 @@
 package id.ishom.sudokuapp
 
-import android.util.Log
+import android.os.Handler
 
 fun HashMap<Int, ArrayList<Int?>>.toBoardDisplay(): ArrayList<Board> {
+    /*
+        This has made for change board maps to board list
+     */
     val boards = ArrayList<Board>()
     for (positionX in 0 until this.keys.size) {
         val values = this[positionX]!!
@@ -15,6 +18,9 @@ fun HashMap<Int, ArrayList<Int?>>.toBoardDisplay(): ArrayList<Board> {
 }
 
 fun ArrayList<Board>.toMaps(): HashMap<Int, ArrayList<Int?>> {
+    /*
+        This has made for change board list to baord maps
+     */
     val maps = hashMapOf<Int, ArrayList<Int?>>()
     for (board in this) {
         if (board.positionX in maps) {
@@ -27,19 +33,18 @@ fun ArrayList<Board>.toMaps(): HashMap<Int, ArrayList<Int?>> {
 }
 
 fun HashMap<Int, ArrayList<Int?>>.checkAnswer(): Boolean {
+    /*
+        This has made for check the board maps is valid sudoku or not
+     */
     for (position in 0 until this.keys.size) {
         if (!this.checkHorizontalValue(position) && !this.checkHorizontalValue(position)) {
-            Log.e("Status Debug", "$position : false")
-        } else {
-            Log.e("Status Debug", "$position : true")
+            return false
         }
     }
     for (xIndex in 0 until 3) {
         for (yIndex in 0 until 3) {
             if (!this.checkBoxValue(xIndex, yIndex)) {
-                Log.e("Status Debug", "$xIndex, $yIndex : false")
-            } else {
-                Log.e("Status Debug", "$xIndex, $yIndex : true")
+                return false
             }
         }
     }
@@ -118,3 +123,15 @@ fun HashMap<Int, ArrayList<Int?>>.checkHorizontalValue(index: Int): Boolean {
     return temps.filterValues { it > 1 }.isEmpty()
 }
 
+fun Handler.start(runnable: Runnable) {
+    this.postDelayed(runnable, 1000)
+}
+
+fun Handler.stop() {
+    this.removeCallbacksAndMessages(null)
+}
+
+fun Handler.restart(runnable: Runnable) {
+    this.stop()
+    this.start(runnable)
+}

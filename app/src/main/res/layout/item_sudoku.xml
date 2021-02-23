@@ -6,7 +6,6 @@
 
     <FrameLayout
         android:id="@+id/itemLayout"
-        android:background="@color/softBlue"
         app:layout_constraintDimensionRatio="H,1:1"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"

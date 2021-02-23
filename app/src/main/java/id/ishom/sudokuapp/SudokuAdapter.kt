@@ -36,11 +36,7 @@ class SudokuAdapter(private val context: Context, private var boards: ArrayList<
         }
 
         if (board.isValid) {
-            if (position % 2 == 0) {
-                holder.itemLayout.setBackgroundColor(context.resources.getColor(R.color.darkBlue))
-            } else {
-                holder.itemLayout.setBackgroundColor(context.resources.getColor(R.color.softBlue))
-            }
+            holder.itemLayout.setBackgroundColor(context.resources.getColor(R.color.transparent))
         } else {
             holder.itemLayout.setBackgroundColor(context.resources.getColor(R.color.red))
         }

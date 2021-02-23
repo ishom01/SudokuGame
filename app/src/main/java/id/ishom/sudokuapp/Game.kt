@@ -16,7 +16,7 @@ class Game(context: Context) {
         set(value) = preferences.set("game-time", value)
         get() = preferences.getLong("game-time")
 
-    fun saveBoard(boards: ArrayList<Board>) {
+    fun saveBoards(boards: ArrayList<Board>) {
         val jsonArray = JSONArray()
         for (board in boards) {
             val jsonObject = JSONObject()
@@ -31,7 +31,7 @@ class Game(context: Context) {
         preferences["boards"] = jsonArray.toString()
     }
 
-    fun loadPuzzle() : ArrayList<Board>? {
+    fun loadBoards() : ArrayList<Board>? {
         if (preferences.sharedPreferences.contains("boards")) {
             val boardJsonString = preferences.getString("boards")
             val boardJsons = Gson().fromJson(boardJsonString, JSONArray::class.java)
