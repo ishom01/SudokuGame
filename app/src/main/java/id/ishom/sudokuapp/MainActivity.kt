@@ -1,15 +1,16 @@
 package id.ishom.sudokuapp
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.activity_main.*
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
 
@@ -50,7 +51,7 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         // check if game data has loaded, try load to game data
         val loadBoards = game.loadBoards()
-        if (loadBoards != null) {
+        if (loadBoards != null && game.isPlaying) {
             // setup load board
             boards = loadBoards
             boardMaps = loadBoards.toMaps()
@@ -61,16 +62,13 @@ class MainActivity : AppCompatActivity() {
             isPause = true
             pauseImageView.setImageResource(R.drawable.ic_resume)
             timerLayout.show()
+            solveButton.show()
         }
     }
 
     override fun onPause() {
         super.onPause()
-        // pause time ticking
-        isPause = true
-        pauseImageView.setImageResource(R.drawable.ic_resume)
-        timeHandler.stop()
-        hideBoard()
+        pauseGame()
 
         // save game progress
         game.gameTime = gameTime
@@ -93,6 +91,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onNewGameClicked(view: View) {
+        if (game.isPlaying) {
+            // if showing dialog pause the game
+            pauseGame()
+
+            val alertDialog = AlertDialog.Builder(this).create()
+            alertDialog.setTitle("Are you sure want to restart this game?")
+            alertDialog.setMessage("If you restart this game, your progress about the game will be removed.")
+            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "YES") { _, _ ->
+                startGame()
+            }
+            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "NO") { _, _ ->
+                alertDialog.dismiss()
+            }
+            alertDialog.show()
+        } else {
+            startGame()
+        }
+    }
+
+    fun startGame() {
         // refresh game cache
         game.clear()
         // set again
@@ -109,6 +127,16 @@ class MainActivity : AppCompatActivity() {
         // Generate Game Puzzle
         generateGameData()
         sudokuAdapter.updateData(boards)
+        solveButton.show()
+    }
+
+    fun pauseGame() {
+        isPause = true
+        pauseImageView.setImageResource(R.drawable.ic_resume)
+        timeHandler.stop()
+
+        // if this game is pause hide board
+        hideBoard()
     }
 
     fun onPauseClicked(view: View) {
@@ -120,22 +148,57 @@ class MainActivity : AppCompatActivity() {
             // if this game is resume show board
             showBoard()
         } else {
-            isPause = true
-            pauseImageView.setImageResource(R.drawable.ic_resume)
-            timeHandler.stop()
-
-            // if this game is pause hide board
-            hideBoard()
+            pauseGame()
         }
     }
 
     fun onSolveClicked(view: View) {
-        // for showing answer of sudoku
+        /*
+            This method for showing sudoku results, check if player give up or not
+         */
+        pauseGame()
+        val alertDialog = AlertDialog.Builder(this).create()
+        alertDialog.setTitle("Would you like to see the answer to this sudoku?")
+        alertDialog.setMessage("Seeing the answer from sudoku gets you, ending your game.")
+        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "YES") { _, _ ->
+            // Game Answer
+            boardMaps[0] = arrayListOf(8, 4, 6, 9, 3, 7, 1, 5, 2)
+            boardMaps[1] = arrayListOf(3, 1, 9, 6, 2, 5, 8, 4, 7)
+            boardMaps[2] = arrayListOf(7, 5, 2, 1, 8, 4, 9, 6, 3)
+            boardMaps[3] = arrayListOf(2, 8, 5, 7, 1, 3, 6, 9, 4)
+            boardMaps[4] = arrayListOf(4, 6, 3, 8, 5, 9, 2, 7, 1)
+            boardMaps[5] = arrayListOf(9, 7, 1, 2, 4, 6, 3, 8, 5)
+            boardMaps[6] = arrayListOf(1, 2, 7, 5, 9, 8, 4, 3, 6)
+            boardMaps[7] = arrayListOf(6, 3, 8, 4, 7, 1, 5, 2, 9)
+            boardMaps[8] = arrayListOf(5, 9, 4, 3, 6, 2, 7, 1, 8)
+
+            // displaying boards answer
+            boards = boardMaps.toBoardDisplay()
+            sudokuAdapter.updateData(boards)
+
+            // if user want to show its mean give up the game
+            game.clear()
+            timerLayout.hide()
+            solveButton.hide()
+        }
+        alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "NO") { _, _ ->
+            alertDialog.dismiss()
+        }
+        alertDialog.show()
     }
 
     private fun sudokuFinished() {
-        // for function if sudoku finished
-        Toast.makeText(this, "YOU WIN!", Toast.LENGTH_LONG).show()
+        pauseGame()
+        val alertDialog = AlertDialog.Builder(this).create()
+        alertDialog.setTitle("YOU FINISHED THE SUDOKU!!")
+        alertDialog.setMessage("Congratulation your finished sudoku with time ${simpleDateFormat.format(gameTime * 1000)}")
+        alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK") { _, _ ->
+            // if user want to show its mean give up the game
+            game.clear()
+            timerLayout.hide()
+            solveButton.hide()
+        }
+        alertDialog.show()
     }
 
     private fun generateGameData() {
@@ -143,36 +206,25 @@ class MainActivity : AppCompatActivity() {
         Notes: Set null value for empty answer
         */
 //        Game Sample
-//        gameMaps[0] = arrayListOf(   8, null, null,    9,    3, null, null, null,    2)
-//        gameMaps[1] = arrayListOf(null, null,    9, null, null, null, null,    4, null)
-//        gameMaps[2] = arrayListOf(   7, null,    2,    1, null, null,    9,    6, null)
-//        gameMaps[3] = arrayListOf(   2, null, null, null, null, null, null,    9, null)
-//        gameMaps[4] = arrayListOf(null,    6, null, null, null, null, null,    7, null)
-//        gameMaps[5] = arrayListOf(null,    7, null, null, null,    6, null, null,    5)
-//        gameMaps[6] = arrayListOf(null,    2,    7, null, null,    8,    4, null,    6)
-//        gameMaps[7] = arrayListOf(null,    3, null, null, null, null,    5, null, null)
-//        gameMaps[8] = arrayListOf(   5, null, null, null,    6,    2, null, null,    8)
+        boardMaps[0] = arrayListOf(   8, null, null,    9,    3, null, null, null,    2)
+        boardMaps[1] = arrayListOf(null, null,    9, null, null, null, null,    4, null)
+        boardMaps[2] = arrayListOf(   7, null,    2,    1, null, null,    9,    6, null)
+        boardMaps[3] = arrayListOf(   2, null, null, null, null, null, null,    9, null)
+        boardMaps[4] = arrayListOf(null,    6, null, null, null, null, null,    7, null)
+        boardMaps[5] = arrayListOf(null,    7, null, null, null,    6, null, null,    5)
+        boardMaps[6] = arrayListOf(null,    2,    7, null, null,    8,    4, null,    6)
+        boardMaps[7] = arrayListOf(null,    3, null, null, null, null,    5, null, null)
+        boardMaps[8] = arrayListOf(   5, null, null, null,    6,    2, null, null,    8)
 
-//        Game Answer
-//        gameMaps[0] = arrayListOf(   8,    4,    6,    9,    3,    7,    1,    5,    2)
-//        gameMaps[1] = arrayListOf(   3,    1,    9,    6,    2,    5,    8,    4,    7)
-//        gameMaps[2] = arrayListOf(   7,    5,    2,    1,    8,    4,    9,    6,    3)
-//        gameMaps[3] = arrayListOf(   2,    8,    5,    7,    1,    3,    6,    9,    4)
-//        gameMaps[4] = arrayListOf(   4,    6,    3,    8,    5,    9,    2,    7,    1)
-//        gameMaps[5] = arrayListOf(   9,    7,    1,    2,    4,    6,    3,    8,    5)
-//        gameMaps[6] = arrayListOf(   1,    2,    7,    5,    9,    8,    4,    3,    6)
-//        gameMaps[7] = arrayListOf(   6,    3,    8,    4,    7,    1,    5,    2,    9)
-//        gameMaps[8] = arrayListOf(   5,    9,    4,    3,    6,    2,    7,    1,    8)
-
-        boardMaps[0] = arrayListOf(   8,    4,    6,    9,    3,    7,    1,    5,    2)
-        boardMaps[1] = arrayListOf(   3,    1,    9,    6,    2,    5,    8,    4,    7)
-        boardMaps[2] = arrayListOf(   7,    5,    2,    1,    8,    4,    9,    6,    3)
-        boardMaps[3] = arrayListOf(   2,    8,    5,    7,    1,    3,    6,    9,    4)
-        boardMaps[4] = arrayListOf(   4,    6,    3,    8,    5,    9,    2,    7,    1)
-        boardMaps[5] = arrayListOf(   9,    7,    1,    2,    4,    6,    3,    8,    5)
-        boardMaps[6] = arrayListOf(   1,    2,    7,    5,    9,    8,    4,    3,    6)
-        boardMaps[7] = arrayListOf(   6,    3,    8,    4,    7,    1,    5,    2,    9)
-        boardMaps[8] = arrayListOf(   5,    9,    4,    3,    6,    2,    7,    1, null)
+//        boardMaps[0] = arrayListOf(8, 4, 6, 9, 3, 7, 1, 5, 2)
+//        boardMaps[1] = arrayListOf(3, 1, 9, 6, 2, 5, 8, 4, 7)
+//        boardMaps[2] = arrayListOf(7, 5, 2, 1, 8, 4, 9, 6, 3)
+//        boardMaps[3] = arrayListOf(2, 8, 5, 7, 1, 3, 6, 9, 4)
+//        boardMaps[4] = arrayListOf(4, 6, 3, 8, 5, 9, 2, 7, 1)
+//        boardMaps[5] = arrayListOf(9, 7, 1, 2, 4, 6, 3, 8, 5)
+//        boardMaps[6] = arrayListOf(1, 2, 7, 5, 9, 8, 4, 3, 6)
+//        boardMaps[7] = arrayListOf(6, 3, 8, 4, 7, 1, 5, 2, 9)
+//        boardMaps[8] = arrayListOf(5, 9, 4, 3, 6, 2, 7, 1, null)
 
         boards = boardMaps.toBoardDisplay()
     }
@@ -222,7 +274,12 @@ class MainActivity : AppCompatActivity() {
         board.value = value
 
         boardMaps[board.positionX]!![board.positionY] = value
-        board.isValid = boardMaps.checkHorizontalValue(board.positionX) && boardMaps.checkVerticalValue(board.positionY) && boardMaps.checkBoxValue(board.positionX, board.positionY)
+        Log.e("Horizontal", boardMaps.checkHorizontalValue(board.positionX).toString())
+        Log.e("Vertical", boardMaps.checkVerticalValue(board.positionY).toString())
+        Log.e("BOX", boardMaps.checkBoxValue(board.positionX, board.positionY).toString())
+        board.isValid = boardMaps.checkHorizontalValue(board.positionX) && boardMaps.checkVerticalValue(
+            board.positionY
+        ) && boardMaps.checkBoxValue(board.positionX, board.positionY)
 
         boards[sudokuAdapter.selectedPosition!!] = board
         sudokuAdapter.updateData(boards)
