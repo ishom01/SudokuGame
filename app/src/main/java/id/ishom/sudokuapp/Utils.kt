@@ -2,15 +2,28 @@ package id.ishom.sudokuapp
 
 import android.util.Log
 
-fun HashMap<Int, ArrayList<Int?>>.toDisplay(): ArrayList<Board> {
+fun HashMap<Int, ArrayList<Int?>>.toBoardDisplay(): ArrayList<Board> {
     val boards = ArrayList<Board>()
     for (positionX in 0 until this.keys.size) {
         val values = this[positionX]!!
         for (positionY in 0 until values.size) {
-            boards.add(Board(positionX, positionY, values[positionY], false))
+            val value = values[positionY]
+            boards.add(Board(positionX, positionY, value, value != null, false))
         }
     }
     return boards
+}
+
+fun ArrayList<Board>.toMaps(): HashMap<Int, ArrayList<Int?>> {
+    val maps = hashMapOf<Int, ArrayList<Int?>>()
+    for (board in this) {
+        if (board.positionX in maps) {
+            maps[board.positionX]?.add(board.value)
+        } else {
+            maps[board.positionX] = arrayListOf(board.value)
+        }
+    }
+    return maps
 }
 
 fun HashMap<Int, ArrayList<Int?>>.checkAnswer(): Boolean {
@@ -43,13 +56,18 @@ fun HashMap<Int, ArrayList<Int?>>.checkBoxValue(xIndex: Int, yIndex: Int): Boole
         Using maps of each value is have duplicate counter or not
      */
     val temps = hashMapOf<Int, Int>()
-    val boxMinXIndex = xIndex * 3
-    val boxMaxXIndex = (xIndex * 3) + 2
-    val boxMinYIndex = yIndex * 3
-    val boxMaxYIndex = (yIndex * 3) + 2
+
+    // hack its change [0,1,2 to -> 0], [3,4,5 to -> 1], [6,7,8 to -> 2]
+    val roundedXIndex = xIndex / 3
+    val roundedYIndex = yIndex / 3
+
+    val boxMinXIndex = roundedXIndex * 3
+    val boxMaxXIndex = (roundedXIndex * 3) + 2
+    val boxMinYIndex = roundedYIndex * 3
+    val boxMaxYIndex = (roundedYIndex * 3) + 2
     for (positionX in boxMinXIndex..boxMaxXIndex) {
         for (positionY in boxMinYIndex..boxMaxYIndex) {
-            val value = this[positionX]!![positionY]?: break
+            val value = this[positionX]!![positionY]?: continue
             if (value in temps) {
                 val counter = temps[value]!!
                 temps[value] = counter + 1
@@ -68,8 +86,8 @@ fun HashMap<Int, ArrayList<Int?>>.checkVerticalValue(index: Int): Boolean {
         Using maps of each value is have duplicate counter or not
      */
     val temps = hashMapOf<Int, Int>()
-    for (position in 0 until this.keys.size) {
-        val value = this[position]!![index]?: break
+    for (values in this.values) {
+        val value = values[index]?: continue
         if (value in temps) {
             val counter = temps[value]!!
             temps[value] = counter + 1
@@ -88,7 +106,7 @@ fun HashMap<Int, ArrayList<Int?>>.checkHorizontalValue(index: Int): Boolean {
      */
     val temps = hashMapOf<Int, Int>()
     for (value in this[index]!!) {
-        val value = value ?: break
+        val value = value ?: continue
         if (value in temps) {
             val counter = temps[value]!!
             temps[value] = counter + 1

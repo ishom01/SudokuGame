@@ -6,11 +6,94 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <RelativeLayout
+        android:background="@color/darkBlue"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginBottom="-100dp"
+        android:layout_width="match_parent"
+        android:layout_height="232dp">
+
+        <LinearLayout
+            android:gravity="center_vertical"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="80dp"
+            android:layout_marginHorizontal="18dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:gravity="center"
+                android:onClick="onStartClicked"
+                android:background="@color/orange"
+                android:paddingEnd="6dp"
+                android:layout_width="140dp"
+                android:layout_height="44dp">
+
+                <ImageView
+                    app:srcCompat="@drawable/ic_add"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"/>
+
+                <TextView
+                    android:text="NEW GAME"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:layout_marginStart="6dp"
+                    android:textColor="@color/white"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:gravity="end"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:text="Time Remaining"
+                    android:textColor="@color/white"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <LinearLayout
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/pauseImageView"
+                        app:srcCompat="@drawable/ic_pause"
+                        android:tint="@color/orange"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"/>
+
+                    <TextView
+                        android:id="@+id/timeTextView"
+                        android:text="00:00:00"
+                        android:layout_marginStart="6dp"
+                        android:textColor="@color/white"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
     <FrameLayout
+        android:id="@+id/boardLayout"
+        android:layout_marginTop="172dp"
         android:layout_marginHorizontal="14dp"
         app:layout_constraintDimensionRatio="H,1:1"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_width="0dp"
@@ -147,5 +230,155 @@
 
         </androidx.cardview.widget.CardView>
     </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/buttonLayout"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="@id/boardLayout"
+        app:layout_constraintEnd_toEndOf="@id/boardLayout"
+        app:layout_constraintTop_toBottomOf="@id/boardLayout"
+        android:layout_width="0dp"
+        android:layout_height="40dp">
+
+        <TextView
+            android:onClick="oneButtonClicked"
+            android:text="1"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:includeFontPadding="false"
+            android:textColor="@color/black"
+            android:background="@color/transparent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <TextView
+            android:onClick="twoButtonClicked"
+            android:text="2"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:includeFontPadding="false"
+            android:textColor="@color/black"
+            android:background="@color/transparent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <TextView
+            android:onClick="threeButtonClicked"
+            android:text="3"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:includeFontPadding="false"
+            android:textColor="@color/black"
+            android:background="@color/transparent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <TextView
+            android:onClick="fourButtonClicked"
+            android:text="4"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:includeFontPadding="false"
+            android:textColor="@color/black"
+            android:background="@color/transparent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <TextView
+            android:onClick="fiveButtonClicked"
+            android:text="5"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:includeFontPadding="false"
+            android:textColor="@color/black"
+            android:background="@color/transparent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <TextView
+            android:onClick="sixButtonClicked"
+            android:text="6"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:includeFontPadding="false"
+            android:textColor="@color/black"
+            android:background="@color/transparent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <TextView
+            android:onClick="sevenButtonClicked"
+            android:text="7"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:includeFontPadding="false"
+            android:textColor="@color/black"
+            android:background="@color/transparent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <TextView
+            android:onClick="eightButtonClicked"
+            android:text="8"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:includeFontPadding="false"
+            android:textColor="@color/black"
+            android:background="@color/transparent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <TextView
+            android:onClick="nineButtonClicked"
+            android:text="9"
+            android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:includeFontPadding="false"
+            android:textColor="@color/black"
+            android:background="@color/transparent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </LinearLayout>
+
+    <TextView
+        app:layout_constraintTop_toBottomOf="@id/buttonLayout"
+        android:text="SOLVE ME!"
+        android:layout_marginTop="16dp"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:background="@color/green"
+        android:onClick="onSolveClicked"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
