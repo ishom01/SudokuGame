@@ -1,7 +1,6 @@
 package id.ishom.sudokuapp
 
 import android.content.Context
-import com.google.gson.Gson
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -34,7 +33,7 @@ class Game(context: Context) {
     fun loadBoards() : ArrayList<Board>? {
         if (preferences.sharedPreferences.contains("boards")) {
             val boardJsonString = preferences.getString("boards")
-            val boardJsons = Gson().fromJson(boardJsonString, JSONArray::class.java)
+            val boardJsons = JSONArray(boardJsonString)
             val boards = arrayListOf<Board>()
             for (index in 0 until boardJsons.length()) {
                 val jsonObject = boardJsons.getJSONObject(index)
@@ -57,5 +56,11 @@ class Game(context: Context) {
         } else {
             return null
         }
+    }
+
+    fun clear() {
+        isPlaying = false
+        gameTime = 0L
+        preferences.delete("boards")
     }
 }

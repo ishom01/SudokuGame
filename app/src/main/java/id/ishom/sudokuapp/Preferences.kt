@@ -38,4 +38,9 @@ class Preferences(context: Context) {
     fun getBoolean(key: String): Boolean {
         return sharedPreferences.getBoolean(key, false)
     }
+
+    fun delete(key: String) {
+        sharedPreferences.edit().remove(key).apply()
+    }
+
 }

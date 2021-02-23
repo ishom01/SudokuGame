@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var game: Game
 
     lateinit var runnable: Runnable
-    var gameTime = 1L
+    var gameTime = 0L
     var isPause = false
     val timeHandler = Handler()
     var simpleDateFormat = SimpleDateFormat("HH:mm:ss", Locale.UK)
@@ -39,34 +39,53 @@ class MainActivity : AppCompatActivity() {
             timeHandler.postDelayed(runnable, 1000)
         }
 
-        // check if game data has loaded, try load to game data
-        val loadBoards = game.loadBoards()
-        if (loadBoards != null) {
-            boards = loadBoards
-            boardMaps = loadBoards.toMaps()
-            gameTime = game.gameTime
-            timeHandler.start(runnable)
-            timerLayout.show()
-        }
-
         sudokuAdapter = SudokuAdapter(this, boards)
         recyclerView.apply {
             layoutManager = GridLayoutManager(this@MainActivity, 9)
             adapter = sudokuAdapter
         }
+    }
 
-//        generateGameData()
-//        boardMaps.toBoardDisplay().toMaps()
-//        boards = boardMaps.toBoardDisplay()
+    override fun onResume() {
+        super.onResume()
+        // check if game data has loaded, try load to game data
+        val loadBoards = game.loadBoards()
+        if (loadBoards != null) {
+            // setup load board
+            boards = loadBoards
+            boardMaps = loadBoards.toMaps()
+
+            // load timer
+            gameTime = game.gameTime
+            setupTimerUI()
+            isPause = true
+            pauseImageView.setImageResource(R.drawable.ic_resume)
+            timerLayout.show()
+        }
     }
 
     override fun onPause() {
         super.onPause()
-        // If the activity is pause or closed, save the game progress
+        // pause time ticking
+        isPause = true
+        pauseImageView.setImageResource(R.drawable.ic_resume)
+        timeHandler.stop()
+        hideBoard()
+
+        // save game progress
         game.gameTime = gameTime
         if (boards.isNotEmpty()) {
             game.saveBoards(boards)
         }
+    }
+
+    private fun showBoard() {
+        sudokuAdapter.updateData(boards)
+    }
+
+    private fun hideBoard() {
+        sudokuAdapter.selectedPosition = null
+        sudokuAdapter.updateData(arrayListOf())
     }
 
     private fun setupTimerUI() {
@@ -74,15 +93,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onNewGameClicked(view: View) {
+        // refresh game cache
+        game.clear()
+        // set again
+        game.isPlaying = true
+
         // updating time and time UI
         gameTime = 0
-        game.isPlaying = true
+        setupTimerUI()
         isPause = false
         pauseImageView.setImageResource(R.drawable.ic_pause)
         timeHandler.restart(runnable)
         timerLayout.show()
 
         // Generate Game Puzzle
+        generateGameData()
+        sudokuAdapter.updateData(boards)
     }
 
     fun onPauseClicked(view: View) {
@@ -90,19 +116,26 @@ class MainActivity : AppCompatActivity() {
             isPause = false
             pauseImageView.setImageResource(R.drawable.ic_pause)
             timeHandler.start(runnable)
+
+            // if this game is resume show board
+            showBoard()
         } else {
             isPause = true
             pauseImageView.setImageResource(R.drawable.ic_resume)
             timeHandler.stop()
+
+            // if this game is pause hide board
+            hideBoard()
         }
     }
 
     fun onSolveClicked(view: View) {
-
+        // for showing answer of sudoku
     }
 
-    private fun setupGameData() {
-
+    private fun sudokuFinished() {
+        // for function if sudoku finished
+        Toast.makeText(this, "YOU WIN!", Toast.LENGTH_LONG).show()
     }
 
     private fun generateGameData() {
@@ -120,7 +153,7 @@ class MainActivity : AppCompatActivity() {
 //        gameMaps[7] = arrayListOf(null,    3, null, null, null, null,    5, null, null)
 //        gameMaps[8] = arrayListOf(   5, null, null, null,    6,    2, null, null,    8)
 
-//        Game Result
+//        Game Answer
 //        gameMaps[0] = arrayListOf(   8,    4,    6,    9,    3,    7,    1,    5,    2)
 //        gameMaps[1] = arrayListOf(   3,    1,    9,    6,    2,    5,    8,    4,    7)
 //        gameMaps[2] = arrayListOf(   7,    5,    2,    1,    8,    4,    9,    6,    3)
@@ -140,6 +173,8 @@ class MainActivity : AppCompatActivity() {
         boardMaps[6] = arrayListOf(   1,    2,    7,    5,    9,    8,    4,    3,    6)
         boardMaps[7] = arrayListOf(   6,    3,    8,    4,    7,    1,    5,    2,    9)
         boardMaps[8] = arrayListOf(   5,    9,    4,    3,    6,    2,    7,    1, null)
+
+        boards = boardMaps.toBoardDisplay()
     }
 
     fun oneButtonClicked(view: View) {
@@ -193,11 +228,7 @@ class MainActivity : AppCompatActivity() {
         sudokuAdapter.updateData(boards)
 
         if (boards.none { !it.isValid || it.value == null }) {
-            sudokuSolved()
+            sudokuFinished()
         }
-    }
-
-    private fun sudokuSolved() {
-        Toast.makeText(this, "YOU WIN!", Toast.LENGTH_LONG).show()
     }
 }
