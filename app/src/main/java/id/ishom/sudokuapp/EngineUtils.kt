@@ -32,26 +32,7 @@ fun ArrayList<Board>.toMaps(): HashMap<Int, ArrayList<Int?>> {
     return maps
 }
 
-fun HashMap<Int, ArrayList<Int?>>.checkAnswer(): Boolean {
-    /*
-        This has made for check the board maps is valid sudoku or not
-     */
-    for (position in 0 until this.keys.size) {
-        if (!this.checkHorizontalValue(position) && !this.checkHorizontalValue(position)) {
-            return false
-        }
-    }
-    for (xIndex in 0 until 3) {
-        for (yIndex in 0 until 3) {
-            if (!this.checkBoxValue(xIndex, yIndex)) {
-                return false
-            }
-        }
-    }
-    return true
-}
-
-fun HashMap<Int, ArrayList<Int?>>.checkBoxValue(xIndex: Int, yIndex: Int): Boolean {
+fun HashMap<Int, ArrayList<Int?>>.checkBoxValue(xIndex: Int, yIndex: Int, dataValue: Int): Boolean {
     /*
         Box = [
             this[3xIndex][3yIndex], this[3xIndex][3yIndex + 1], this[3xIndex][3yIndex + 2]
@@ -82,10 +63,10 @@ fun HashMap<Int, ArrayList<Int?>>.checkBoxValue(xIndex: Int, yIndex: Int): Boole
         }
     }
     // if value counter which have counter > 1 (its mean have duplicate keys)
-    return temps.filterValues { it > 1 }.isEmpty()
+    return temps[dataValue] == 1
 }
 
-fun HashMap<Int, ArrayList<Int?>>.checkVerticalValue(index: Int): Boolean {
+fun HashMap<Int, ArrayList<Int?>>.checkVerticalValue(index: Int, dataValue: Int): Boolean {
     /*
         For checking for vertical value is valid or not,
         Using maps of each value is have duplicate counter or not
@@ -101,13 +82,12 @@ fun HashMap<Int, ArrayList<Int?>>.checkVerticalValue(index: Int): Boolean {
         }
     }
     // if value counter which have counter > 1 (its mean have duplicate keys)
-    return temps.filterValues { it > 1 }.isEmpty()
+    return temps[dataValue] == 1
 }
 
-fun HashMap<Int, ArrayList<Int?>>.checkHorizontalValue(index: Int): Boolean {
+fun HashMap<Int, ArrayList<Int?>>.checkHorizontalValue(index: Int, dataValue: Int): Boolean {
     /*
         For checking for horizontal value is valid or not,
-        Using maps of each value is have duplicate counter or not
      */
     val temps = hashMapOf<Int, Int>()
     for (value in this[index]!!) {
@@ -120,7 +100,7 @@ fun HashMap<Int, ArrayList<Int?>>.checkHorizontalValue(index: Int): Boolean {
         }
     }
     // if value counter which have counter > 1 (its mean have duplicate keys)
-    return temps.filterValues { it > 1 }.isEmpty()
+    return temps[dataValue] == 1
 }
 
 fun Handler.start(runnable: Runnable) {

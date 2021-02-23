@@ -2,9 +2,7 @@ package id.ishom.sudokuapp
 
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
@@ -274,12 +272,8 @@ class MainActivity : AppCompatActivity() {
         board.value = value
 
         boardMaps[board.positionX]!![board.positionY] = value
-        Log.e("Horizontal", boardMaps.checkHorizontalValue(board.positionX).toString())
-        Log.e("Vertical", boardMaps.checkVerticalValue(board.positionY).toString())
-        Log.e("BOX", boardMaps.checkBoxValue(board.positionX, board.positionY).toString())
-        board.isValid = boardMaps.checkHorizontalValue(board.positionX) && boardMaps.checkVerticalValue(
-            board.positionY
-        ) && boardMaps.checkBoxValue(board.positionX, board.positionY)
+        board.isValid = boardMaps.checkHorizontalValue(board.positionX, value) && boardMaps.checkVerticalValue(
+            board.positionY, value) && boardMaps.checkBoxValue(board.positionX, board.positionY, value)
 
         boards[sudokuAdapter.selectedPosition!!] = board
         sudokuAdapter.updateData(boards)
