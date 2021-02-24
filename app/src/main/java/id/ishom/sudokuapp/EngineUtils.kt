@@ -2,6 +2,10 @@ package id.ishom.sudokuapp
 
 import android.os.Handler
 
+/*
+    Engine Game extensions created by Ishom
+ */
+
 fun HashMap<Int, ArrayList<Int?>>.toBoardDisplay(): ArrayList<Board> {
     /*
         This has made for change board maps to board list

@@ -269,11 +269,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         val board = boards[sudokuAdapter.selectedPosition!!]
-        board.value = value
 
-        boardMaps[board.positionX]!![board.positionY] = value
-        board.isValid = boardMaps.checkHorizontalValue(board.positionX, value) && boardMaps.checkVerticalValue(
-            board.positionY, value) && boardMaps.checkBoxValue(board.positionX, board.positionY, value)
+        // check if board.value is same with existing value, replace value with null
+        if (value == board.value) {
+            board.value = null
+            boardMaps[board.positionX]!![board.positionY] = null
+            board.isValid = true
+        } else {
+            board.value = value
+            boardMaps[board.positionX]!![board.positionY] = value
+            board.isValid = boardMaps.checkHorizontalValue(board.positionX, value) && boardMaps.checkVerticalValue(
+                    board.positionY, value) && boardMaps.checkBoxValue(board.positionX, board.positionY, value)
+        }
 
         boards[sudokuAdapter.selectedPosition!!] = board
         sudokuAdapter.updateData(boards)
