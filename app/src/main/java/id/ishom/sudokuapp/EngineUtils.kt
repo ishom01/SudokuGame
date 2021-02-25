@@ -1,6 +1,8 @@
 package id.ishom.sudokuapp
 
 import android.os.Handler
+import android.util.Log
+import android.view.autofill.AutofillValue
 
 /*
     Engine Game extensions created by Ishom
@@ -45,8 +47,7 @@ fun HashMap<Int, ArrayList<Int?>>.checkBoxValue(xIndex: Int, yIndex: Int, dataVa
         ]
         Using maps of each value is have duplicate counter or not
      */
-    val temps = hashMapOf<Int, Int>()
-
+    val temps = arrayListOf<Int>()
     // hack its change [0,1,2 to -> 0], [3,4,5 to -> 1], [6,7,8 to -> 2]
     val roundedXIndex = xIndex / 3
     val roundedYIndex = yIndex / 3
@@ -58,16 +59,10 @@ fun HashMap<Int, ArrayList<Int?>>.checkBoxValue(xIndex: Int, yIndex: Int, dataVa
     for (positionX in boxMinXIndex..boxMaxXIndex) {
         for (positionY in boxMinYIndex..boxMaxYIndex) {
             val value = this[positionX]!![positionY]?: continue
-            if (value in temps) {
-                val counter = temps[value]!!
-                temps[value] = counter + 1
-            } else {
-                temps[value] = 1
-            }
+            temps.add(value)
         }
     }
-    // if value counter which have counter > 1 (its mean have duplicate keys)
-    return temps[dataValue] == 1
+    return dataValue !in temps
 }
 
 fun HashMap<Int, ArrayList<Int?>>.checkVerticalValue(index: Int, dataValue: Int): Boolean {
@@ -75,36 +70,74 @@ fun HashMap<Int, ArrayList<Int?>>.checkVerticalValue(index: Int, dataValue: Int)
         For checking for vertical value is valid or not,
         Using maps of each value is have duplicate counter or not
      */
-    val temps = hashMapOf<Int, Int>()
+    val temps = arrayListOf<Int>()
     for (values in this.values) {
         val value = values[index]?: continue
-        if (value in temps) {
-            val counter = temps[value]!!
-            temps[value] = counter + 1
-        } else {
-            temps[value] = 1
-        }
+        temps.add(value)
     }
-    // if value counter which have counter > 1 (its mean have duplicate keys)
-    return temps[dataValue] == 1
+    return dataValue !in temps
+}
+
+fun HashMap<Int, ArrayList<Int?>>.checkRowValue(xIndex: Int, yIndex: Int, value: Int): Boolean {
+    return this.checkHorizontalValue(xIndex, value) && this.checkVerticalValue(yIndex, value) && checkBoxValue(xIndex, yIndex, value)
 }
 
 fun HashMap<Int, ArrayList<Int?>>.checkHorizontalValue(index: Int, dataValue: Int): Boolean {
-    /*
-        For checking for horizontal value is valid or not,
-     */
-    val temps = hashMapOf<Int, Int>()
-    for (value in this[index]!!) {
-        val value = value ?: continue
-        if (value in temps) {
-            val counter = temps[value]!!
-            temps[value] = counter + 1
-        } else {
-            temps[value] = 1
+    return dataValue !in this[index]!!
+}
+
+fun HashMap<Int, ArrayList<Int?>>.findEmptyBoard(): Pair<Int, Int> {
+    for (xIndex in 0 until this.size) {
+       val values =  this[xIndex]!!
+        for (yIndex in 0 until this.size) {
+            if (values[yIndex] == null) {
+                return Pair(xIndex, yIndex)
+            }
         }
     }
-    // if value counter which have counter > 1 (its mean have duplicate keys)
-    return temps[dataValue] == 1
+    return Pair(-1, -1)
+}
+
+fun HashMap<Int, ArrayList<Int?>>.checkSolution(): Boolean {
+    val emptyCoordinateBoard = this.findEmptyBoard()
+    if (emptyCoordinateBoard == Pair(-1, -1)) {
+        return true
+    }
+
+    val xIndex = emptyCoordinateBoard.first
+    val yIndex = emptyCoordinateBoard.second
+
+    for (value in 1..9) {
+        val isValid = this.checkRowValue(xIndex, yIndex, value)
+        if (isValid) {
+            this[xIndex]?.set(yIndex, value)
+            if (this.checkSolution())
+                return true
+            this[xIndex]?.set(yIndex, null)
+        }
+    }
+    return false
+}
+
+fun HashMap<Int, ArrayList<Int?>>.findSolution(): Boolean {
+    val emptyCoordinateBoard = this.findEmptyBoard()
+    if (emptyCoordinateBoard == Pair(-1, -1)) {
+        return true
+    }
+
+    val xIndex = emptyCoordinateBoard.first
+    val yIndex = emptyCoordinateBoard.second
+
+    for (value in 1..9) {
+        val isValid = checkRowValue(xIndex, yIndex, value)
+        if (isValid) {
+            this[xIndex]?.set(yIndex, value)
+            if (findSolution())
+                return true
+            this[xIndex]?.set(yIndex, null)
+        }
+    }
+    return false
 }
 
 fun Handler.start(runnable: Runnable) {

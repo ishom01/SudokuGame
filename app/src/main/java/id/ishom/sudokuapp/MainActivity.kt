@@ -2,6 +2,7 @@ package id.ishom.sudokuapp
 
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -9,12 +10,14 @@ import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.android.synthetic.main.activity_main.*
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 class MainActivity : AppCompatActivity() {
 
     var boardMaps = hashMapOf<Int, ArrayList<Int?>>()
+    var checkBoard = hashMapOf<Int, ArrayList<Int?>>()
     var boards = arrayListOf<Board>()
-//    val gameAnswerMaps = hashMapOf<Int, ArrayList<Int?>>()
 
     lateinit var sudokuAdapter: SudokuAdapter
     lateinit var game: Game
@@ -160,24 +163,27 @@ class MainActivity : AppCompatActivity() {
         alertDialog.setMessage("Seeing the answer from sudoku gets you, ending your game.")
         alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "YES") { _, _ ->
             // Game Answer
-            boardMaps[0] = arrayListOf(8, 4, 6, 9, 3, 7, 1, 5, 2)
-            boardMaps[1] = arrayListOf(3, 1, 9, 6, 2, 5, 8, 4, 7)
-            boardMaps[2] = arrayListOf(7, 5, 2, 1, 8, 4, 9, 6, 3)
-            boardMaps[3] = arrayListOf(2, 8, 5, 7, 1, 3, 6, 9, 4)
-            boardMaps[4] = arrayListOf(4, 6, 3, 8, 5, 9, 2, 7, 1)
-            boardMaps[5] = arrayListOf(9, 7, 1, 2, 4, 6, 3, 8, 5)
-            boardMaps[6] = arrayListOf(1, 2, 7, 5, 9, 8, 4, 3, 6)
-            boardMaps[7] = arrayListOf(6, 3, 8, 4, 7, 1, 5, 2, 9)
-            boardMaps[8] = arrayListOf(5, 9, 4, 3, 6, 2, 7, 1, 8)
+            val isHaveSolution = boardMaps.findSolution()
+            if (isHaveSolution) {
+                // displaying boards answer
+                boards = boardMaps.toBoardDisplay()
+                sudokuAdapter.updateData(boards)
 
-            // displaying boards answer
-            boards = boardMaps.toBoardDisplay()
-            sudokuAdapter.updateData(boards)
+                // if user want to show its mean give up the game
+                game.clear()
+                timerLayout.hide()
+                solveButton.hide()
+            } else {
+                showBoard()
+                val alertDialog = AlertDialog.Builder(this).create()
+                alertDialog.setTitle("Solution not found!")
+                alertDialog.setMessage("This sudoku doesnt have solutions.")
+                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK") { _, _ ->
+                    alertDialog.dismiss()
+                }
+                alertDialog.show()
+            }
 
-            // if user want to show its mean give up the game
-            game.clear()
-            timerLayout.hide()
-            solveButton.hide()
         }
         alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "NO") { _, _ ->
             alertDialog.dismiss()
@@ -277,9 +283,8 @@ class MainActivity : AppCompatActivity() {
             board.isValid = true
         } else {
             board.value = value
+            board.isValid = boardMaps.checkRowValue(board.positionX, board.positionY, value)
             boardMaps[board.positionX]!![board.positionY] = value
-            board.isValid = boardMaps.checkHorizontalValue(board.positionX, value) && boardMaps.checkVerticalValue(
-                    board.positionY, value) && boardMaps.checkBoxValue(board.positionX, board.positionY, value)
         }
 
         boards[sudokuAdapter.selectedPosition!!] = board
